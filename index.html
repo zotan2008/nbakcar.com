@@ -1,38 +1,81 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="en" dir="ltr">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NB 车品- nbakcar.com</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #f4f4f4;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            margin: 0;
-        }
-        .container {
-            text-align: center;
-            background: #fff;
-            padding: 40px;
-            border-radius: 8px;
-            box-shadow: 0 0 10px rgba(0,0,0,0.1);
-        }
-        h1 {
-            color: #333;
-        }
-        p {
-            color: #666;
-        }
-    </style>
+    <title data-i18n="site_title">Products</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/rtl.css" id="rtl-css" disabled>
+    <!-- Cloudflare -->
 </head>
 <body>
-    <div class="container">
-        <h1>NB 车品</h1>
-        <p>测试站点部署成功！(nbakcar.com)</p >
+    <!-- Header -->
+    <header class="header">
+        <div class="header-left">
+            <div class="logo" id="logo-placeholder">YOUR BRAND</div>
+        </div>
+        <nav class="nav-menu">
+            <a href="#" class="nav-link active" data-category="all" data-i18n="nav_all">All</a>
+            <a href="#" class="nav-link" data-category="external" data-i18n="nav_external">External</a>
+            <a href="#" class="nav-link" data-category="internal" data-i18n="nav_internal">Internal</a>
+            <a href="#" class="nav-link" data-category="contact" id="nav-contact" data-i18n="nav_contact">Contact</a>
+        </nav>
+        <div class="header-right">
+            <select id="language-switcher" class="lang-switch">
+                <option value="en">EN</option>
+                <option value="es">ES</option>
+                <option value="zh-TW">繁體</option>
+                <option value="ar">ع</option>
+            </select>
+        </div>
+    </header>
+
+    <!-- Search -->
+    <div class="search-bar">
+        <input type="text" id="search-input" data-i18n-placeholder="search_placeholder" placeholder="Search products...">
     </div>
+
+    <!-- Product Grid -->
+    <main class="product-grid" id="product-grid"></main>
+
+    <!-- Loading More -->
+    <div class="load-more-container">
+        <button id="load-more-btn" class="load-more-btn" data-i18n="load_more">Load More</button>
+    </div>
+
+    <!-- Video Modal -->
+    <div id="video-modal" class="modal">
+        <div class="modal-backdrop"></div>
+        <div class="modal-content">
+            <button class="modal-close" id="modal-close">&times;</button>
+            <div class="modal-body">
+                <div class="modal-image">
+                    <img id="modal-img" src="" alt="">
+                </div>
+                <div class="modal-info">
+                    <h2 id="modal-title"></h2>
+                    <p id="modal-desc"></p>
+                    <div id="modal-video-container"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Contact Modal (empty placeholder) -->
+    <div id="contact-modal" class="modal">
+        <div class="modal-backdrop"></div>
+        <div class="modal-content contact-content">
+            <button class="modal-close" id="contact-close">&times;</button>
+            <div class="modal-body">
+                <h2 data-i18n="nav_contact">Contact</h2>
+                <p class="contact-placeholder" data-i18n="contact_coming_soon">Coming soon...</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="js/i18n.js"></script>
+    <script src="js/video-embed.js"></script>
+    <script src="js/main.js"></script>
 </body>
 </html>
