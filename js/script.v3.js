@@ -11,7 +11,7 @@
 
   var PER_PAGE = 8;
   var currentPage = { home: 1, products: 1 };
-  var currentLang = 'zh';
+  var currentLang = 'en';
   var lightboxIndex = 0;
 
   function cardHTML(src, index) {
@@ -128,7 +128,7 @@
   }
 
   function init() {
-    renderGrid('home-grid', 'home');
+    applylanguage('en');renderGrid('home-grid', 'home');
 
     document.querySelectorAll('[data-nav]').forEach(function(link) {
       link.addEventListener('click', function(e) {
