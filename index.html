@@ -42,7 +42,12 @@ main{padding:22px 28px 10px}
 .section-title{font-size:18px;font-weight:700;margin-bottom:14px}
 
 /* 产品网格 —— 图片写死在HTML，不靠JS生成 */
-.product-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:16px}
+.product-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}
+@media (max-width:900px){.product-grid{grid-template-columns:repeat(2,1fr)}}
+.next-page-wrap{display:flex;justify-content:center;margin-top:24px}
+.next-page-btn{padding:10px 32px;border:1px solid var(--main);border-radius:8px;background:#fff;color:var(--main);font-size:14px;font-weight:600;cursor:pointer;transition:.2s}
+.next-page-btn:hover{background:var(--main);color:#fff}
+.next-page-btn:disabled{border-color:#ddd;color:#bbb;cursor:not-allowed;background:#fafafa}
 .product-card{background:#fff;border:1px solid #eee;border-radius:10px;overflow:hidden;transition:.2s;display:flex;flex-direction:column}
 .product-card:hover{box-shadow:0 4px 16px rgba(0,0,0,.1)}
 .product-card img.thumb{width:100%;aspect-ratio:3/4;object-fit:contain;padding:12px;background:var(--bg);display:block;cursor:zoom-in}
@@ -55,7 +60,7 @@ main{padding:22px 28px 10px}
 .no-result{grid-column:1/-1;text-align:center;color:var(--gray);padding:40px 0;display:none}
 
 /* 分页 */
-.pagination{display:flex;justify-content:center;align-items:center;gap:6px;margin:22px 0 8px;flex-wrap:wrap}
+.pagination{display:flex;justify-content:center;margin:22px 0 8px}
 .page-btn{min-width:34px;padding:6px 11px;border:1px solid #ddd;border-radius:6px;background:#fff;cursor:pointer;font-size:13px;color:var(--dark)}
 .page-btn:hover:not(:disabled){border-color:var(--main);color:var(--main)}
 .page-btn.active{background:var(--main);color:#fff;border-color:var(--main)}
