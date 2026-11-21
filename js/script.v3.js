@@ -1,6 +1,6 @@
 // ============================================================
-//  NBAKCAR 展厅  script.v3.js
-//  以后加图 / 改名字，只改下面「配置区」三张表就行
+//  NBAKCAR 展厅  script.v3.js   —— 与 index.html 严格配对
+//  以后加图 / 改名字，只改下面「配置区」四张表就行
 // ============================================================
 (function () {
   'use strict';
@@ -31,89 +31,55 @@
     'images/NBAKCAR00120.PNG'
   ];
 
-  // 2) 中文显示名：客户看到的中文。20 张全部叫「座椅靠背覆盖」
-  var productNames = {
-    'images/NBAKCAR00101.PNG': '座椅靠背覆盖',
-    'images/NBAKCAR00102.PNG': '座椅靠背覆盖',
-    'images/NBAKCAR00103.PNG': '座椅靠背覆盖',
-    'images/NBAKCAR00104.PNG': '座椅靠背覆盖',
-    'images/NBAKCAR00105.PNG': '座椅靠背覆盖',
-    'images/NBAKCAR00106.PNG': '座椅靠背覆盖',
-    'images/NBAKCAR00107.PNG': '座椅靠背覆盖',
-    'images/NBAKCAR00108.PNG': '座椅靠背覆盖',
-    'images/NBAKCAR00109.PNG': '座椅靠背覆盖',
-    'images/NBAKCAR00110.PNG': '座椅靠背覆盖',
-    'images/NBAKCAR00111.PNG': '座椅靠背覆盖',
-    'images/NBAKCAR00112.PNG': '座椅靠背覆盖',
-    'images/NBAKCAR00113.PNG': '座椅靠背覆盖',
-    'images/NBAKCAR00114.PNG': '座椅靠背覆盖',
-    'images/NBAKCAR00115.PNG': '座椅靠背覆盖',
-    'images/NBAKCAR00116.PNG': '座椅靠背覆盖',
-    'images/NBAKCAR00117.PNG': '座椅靠背覆盖',
-    'images/NBAKCAR00118.PNG': '座椅靠背覆盖',
-    'images/NBAKCAR00119.PNG': '座椅靠背覆盖',
-    'images/NBAKCAR00120.PNG': '座椅靠背覆盖'
+  // 2) 产品名称（五种语言）。加图时五张表都要补一行，否则会显示空白
+  var NAME = {
+    zh: '座椅靠背覆盖',
+    en: 'Seat Back Cover',
+    es: 'Funda de respaldo',
+    ja: 'シートバックカバー',
+    ar: 'غطاء ظهر المقعد'
   };
 
-  // 3) 英文显示名：切英文时看到的。20 张全部叫「Seat Back Cover」
-  var productNamesEn = {
-    'images/NBAKCAR00101.PNG': 'Seat Back Cover',
-    'images/NBAKCAR00102.PNG': 'Seat Back Cover',
-    'images/NBAKCAR00103.PNG': 'Seat Back Cover',
-    'images/NBAKCAR00104.PNG': 'Seat Back Cover',
-    'images/NBAKCAR00105.PNG': 'Seat Back Cover',
-    'images/NBAKCAR00106.PNG': 'Seat Back Cover',
-    'images/NBAKCAR00107.PNG': 'Seat Back Cover',
-    'images/NBAKCAR00108.PNG': 'Seat Back Cover',
-    'images/NBAKCAR00109.PNG': 'Seat Back Cover',
-    'images/NBAKCAR00110.PNG': 'Seat Back Cover',
-    'images/NBAKCAR00111.PNG': 'Seat Back Cover',
-    'images/NBAKCAR00112.PNG': 'Seat Back Cover',
-    'images/NBAKCAR00113.PNG': 'Seat Back Cover',
-    'images/NBAKCAR00114.PNG': 'Seat Back Cover',
-    'images/NBAKCAR00115.PNG': 'Seat Back Cover',
-    'images/NBAKCAR00116.PNG': 'Seat Back Cover',
-    'images/NBAKCAR00117.PNG': 'Seat Back Cover',
-    'images/NBAKCAR00118.PNG': 'Seat Back Cover',
-    'images/NBAKCAR00119.PNG': 'Seat Back Cover',
-    'images/NBAKCAR00120.PNG': 'Seat Back Cover'
-  };
+  // 3) 单张图单独改名（可选）。不填就用上面 NAME 里的通用名
+  var nameOverride = {};
+  // 例：'images/NBAKCAR00101.PNG': { zh:'前排座椅套', en:'Front Seat Cover' }
 
-  // 视频链接（以后填，格式：'images/xxx.PNG': 'https://...'）
+  // 4) 视频链接（以后填，格式：'images/xxx.PNG': 'https://...'）
   var productVideos = {};
 
   // 每页显示几张
   var PER_PAGE = 8;
 
+  // 默认语言（首次打开没选过时用这个）
+  var DEFAULT_LANG = 'en';
+
   /* ================== 配置区结束，下面不用动 ================== */
 
-  var currentLang = 'en';               // 默认英文
+  var currentLang = DEFAULT_LANG;
   var currentPage = { home: 1, products: 1 };
   var searching = false;
 
-  function getTitle(src) {
-    if (currentLang === 'en') return productNamesEn[src] || productNames[src] || '';
-    return productNames[src] || productNamesEn[src] || '';
-  }
+  // 记住用户手动选过的语言，刷新后仍在
+  try {
+    var saved = localStorage.getItem('nbakcar_lang');
+    if (saved && NAME[saved]) currentLang = saved;
+  } catch (e) {}
 
+  function getTitle(src) {
+    if (nameOverride[src] && nameOverride[src][currentLang]) return nameOverride[src][currentLang];
+    return NAME[currentLang] || NAME.en || '';
+  }
   function getVideo(src) { return productVideos[src] || ''; }
 
-  function videoLabel() {
-    var m = { zh: '▶ 视频', en: '▶ Video', es: '▶ Video', ja: '▶ 動画', ar: '▶ فيديو' };
-    return m[currentLang] || '▶ Video';
-  }
-  function videoTip() {
-    var m = { zh: '视频链接待添加', en: 'Video link to be added', es: 'Enlace de video por añadir', ja: '動画リンク未追加', ar: 'رابط الفيديو سيُضاف' };
-    return m[currentLang] || 'Video link to be added';
-  }
-  function noMoreLabel() {
-    var m = { zh: '没有更多了', en: 'No more', es: 'No hay más', ja: 'これ以上なし', ar: 'لا المزيد' };
-    return m[currentLang] || 'No more';
-  }
-  function nextLabel() {
-    var m = { zh: '下一页', en: 'Next Page', es: 'Siguiente', ja: '次のページ', ar: 'الصفحة التالية' };
-    return m[currentLang] || 'Next Page';
-  }
+  /* ---------- JS 自己生成的那些文字（卡片按钮、提示等） ---------- */
+  var DICT = {
+    videoLabel: { zh: '▶ 视频', en: '▶ Video', es: '▶ Video', ja: '▶ 動画', ar: '▶ فيديو' },
+    videoTip:   { zh: '视频链接待添加', en: 'Video link to be added', es: 'Enlace de video por añadir', ja: '動画リンク未追加', ar: 'رابط الفيديو سيُضاف' },
+    noMore:     { zh: '没有更多了', en: 'No more', es: 'No hay más', ja: 'これ以上なし', ar: 'لا المزيد' },
+    next:       { zh: '下一页', en: 'Next Page', es: 'Siguiente', ja: '次のページ', ar: 'الصفحة التالية' },
+    lightboxOf: { zh: '第 {i} / {n} 张', en: '{i} / {n}', es: '{i} / {n}', ja: '{i} / {n}', ar: '{i} / {n}' }
+  };
+  function t(key) { return (DICT[key] && DICT[key][currentLang]) || (DICT[key] && DICT[key].en) || ''; }
 
   function cardHTML(src, index) {
     var title = getTitle(src);
@@ -121,7 +87,7 @@
     return '<article class="product-card" data-index="' + index + '">' +
       '<img class="thumb" src="' + src + '" alt="' + title + '" loading="lazy">' +
       '<div class="product-info"><div class="product-title">' + title + '</div></div>' +
-      '<div class="video-slot"><button class="video-btn" type="button" data-video="' + vid + '">' + videoLabel() + '</button></div>' +
+      '<div class="video-slot"><button class="video-btn" type="button" data-video="' + vid + '">' + t('videoLabel') + '</button></div>' +
     '</article>';
   }
 
@@ -136,7 +102,7 @@
         e.stopPropagation();
         var url = this.getAttribute('data-video');
         if (url) { window.open(url, '_blank'); }
-        else { alert(videoTip()); }
+        else { alert(t('videoTip')); }
       });
     });
   }
@@ -145,10 +111,9 @@
     var container = document.getElementById(gridId);
     if (!container) return;
 
-    var list = images;
     var page = currentPage[pagerKey];
     var start = (page - 1) * PER_PAGE;
-    var slice = list.slice(start, start + PER_PAGE);
+    var slice = images.slice(start, start + PER_PAGE);
 
     container.innerHTML = '';
     slice.forEach(function (src, i) { container.insertAdjacentHTML('beforeend', cardHTML(src, start + i)); });
@@ -156,11 +121,11 @@
 
     var btn = document.getElementById('next-' + pagerKey);
     if (btn) {
-      if (start + PER_PAGE >= list.length) {
-        btn.textContent = noMoreLabel();
+      if (start + PER_PAGE >= images.length) {
+        btn.textContent = t('noMore');
         btn.disabled = true;
       } else {
-        btn.textContent = nextLabel();
+        btn.textContent = t('next');
         btn.disabled = false;
       }
     }
@@ -170,7 +135,8 @@
     var container = document.getElementById('product-grid');
     var noRes = document.getElementById('no-result');
     var matched = images.filter(function (src) {
-      var hay = (productNames[src] || '') + ' ' + (productNamesEn[src] || '') + ' ' + src;
+      // 五种语言的名字都参与匹配，切到任意语言都能搜到
+      var hay = NAME.zh + ' ' + NAME.en + ' ' + NAME.es + ' ' + NAME.ja + ' ' + NAME.ar + ' ' + src;
       return hay.toLowerCase().indexOf(q) !== -1;
     });
     container.innerHTML = '';
@@ -178,34 +144,33 @@
     bindCards(container);
     if (noRes) noRes.style.display = matched.length ? 'none' : 'block';
     var btn = document.getElementById('next-products');
-    if (btn) { btn.textContent = nextLabel(); btn.disabled = true; }
+    if (btn) { btn.textContent = t('next'); btn.disabled = true; }
   }
 
-  /* ---------- 语言切换 ---------- */
+  /* ---------- 语言切换：菜单 / 产品名 / 页脚 / 按钮 一次全换 ---------- */
   function applyLanguage(lang) {
+    if (!NAME[lang]) lang = DEFAULT_LANG;
     currentLang = lang;
     document.documentElement.setAttribute('lang', lang === 'zh' ? 'zh-CN' : lang);
 
-    // 自检标记：显示当前语言，确认新 JS 已生效（不想显示可删掉这几行）
+    // 自检标记：确认这份新 JS 真的生效了（不想显示可删掉这三行）
     var badge = document.getElementById('lang-badge');
-    if (badge) {
-      badge.textContent = ({ zh: '中', en: 'EN', es: 'ES', ja: '日', ar: 'ع' })[lang] || lang;
-      badge.setAttribute('title', 'current language: ' + lang);
-    }
+    if (badge) badge.textContent = ({ zh: '中', en: 'EN', es: 'ES', ja: '日', ar: 'ع' })[lang] || lang;
 
-    // 1) 普通文本
+    // 1) 普通文字（菜单、页脚各栏、标题、提示……凡是 HTML 里写了 data-xx 的）
     document.querySelectorAll('[data-' + lang + ']').forEach(function (el) {
       el.textContent = el.getAttribute('data-' + lang);
     });
-    // 2) placeholder 等属性
+    // 2) 属性类（搜索框占位提示等）
     ['placeholder', 'title', 'alt'].forEach(function (attr) {
       document.querySelectorAll('[data-' + lang + '-' + attr + ']').forEach(function (el) {
         el.setAttribute(attr, el.getAttribute('data-' + lang + '-' + attr));
       });
     });
-    // 3) 重画卡片（标题跟随语言）
+    // 3) 卡片重画，产品名称跟着换
     if (searching) {
-      var q = (document.getElementById('header-search').value || '').trim().toLowerCase();
+      var input0 = document.getElementById('header-search');
+      var q = (input0 && input0.value || '').trim().toLowerCase();
       if (q) { renderSearch(q); return; }
       searching = false;
     }
@@ -213,6 +178,12 @@
     currentPage.products = 1;
     renderGrid('home-grid', 'home');
     renderGrid('product-grid', 'products');
+    // 4) 灯箱说明如果正开着，也跟着换
+    if (document.getElementById('lightbox').classList.contains('show')) {
+      document.getElementById('lb-cap').textContent = getTitle(images[lightboxIndex]);
+    }
+
+    try { localStorage.setItem('nbakcar_lang', lang); } catch (e) {}
   }
 
   /* ---------- 视图切换 ---------- */
@@ -224,7 +195,6 @@
     document.querySelectorAll('.nav-link[data-go]').forEach(function (l) {
       l.classList.toggle('active', l.getAttribute('data-go') === view);
     });
-    // 切走时清搜索
     if (view !== 'products') {
       searching = false;
       var input = document.getElementById('header-search');
@@ -241,7 +211,8 @@
     lightboxIndex = i;
     document.getElementById('lb-img').src = images[i];
     document.getElementById('lb-img').alt = getTitle(images[i]);
-    document.getElementById('lb-cap').textContent = getTitle(images[i]);
+    document.getElementById('lb-cap').textContent =
+      getTitle(images[i]) + '  ·  ' + t('lightboxOf').replace('{i}', i + 1).replace('{n}', images.length);
     document.getElementById('lightbox').classList.add('show');
   }
   function closeLightbox() { document.getElementById('lightbox').classList.remove('show'); }
@@ -252,7 +223,7 @@
 
   /* ---------- 初始化 ---------- */
   function init() {
-    // 菜单 / LOGO 点击
+    // 菜单 / LOGO / 页脚里带 data-go 的都能点
     document.querySelectorAll('[data-go]').forEach(function (el) {
       el.addEventListener('click', function (e) {
         e.preventDefault();
@@ -276,7 +247,7 @@
     // 语言切换
     var langSel = document.getElementById('lang-switch');
     if (langSel) {
-      langSel.value = currentLang;                 // 保证下拉与默认语言一致
+      langSel.value = currentLang;
       langSel.addEventListener('change', function () { applyLanguage(this.value); });
     }
 
@@ -325,8 +296,7 @@
       if (e.key === 'ArrowRight') lightboxNav(1);
     });
 
-    // 应用默认语言（英文）并渲染
-    applyLanguage(currentLang);
+    applyLanguage(currentLang);   // 应用语言并首次渲染卡片
   }
 
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
