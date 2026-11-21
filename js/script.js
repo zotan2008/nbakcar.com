@@ -1,226 +1,203 @@
-(function(){
+/* NBAKCAR 工厂产品展厅 —— 只负责交互，不生成图片卡片
+   图片卡片已写死在 index.html 里，所以即使这段脚本出错，图片照样能显示 */
+(function () {
   'use strict';
 
-  // ===== 图片数据（严格按你之前能用的路径）=====
-  var images = [];
-  for (var i = 1; i <= 20; i++) {
-    var num = String(i + 100).slice(1); // 101~120
-    images.push('images/NBAKCAR00' + num + '.PNG');
-  }
-
   var PER_PAGE = 9;
-  var currentPage = { home: 1, products: 1 };
-  var currentLang = 'zh';
-  var lightboxIndex = 0;
-  var lightboxList = [];
+  var page = { home: 1, products: 1 };
+  var lang = 'zh';
+  var lbList = [], lbIndex = 0;
 
-  // ===== 生成卡片 HTML =====
-  function cardHTML(src, index) {
-    var name = src.replace('images/', '').replace('.PNG', '');
-    return '<article class="product-card" data-index="' + index + '">' +
-      '<img src="' + src + '" alt="' + name + '" loading="lazy">' +
-      '<div class="product-info">' +
-        '<div class="product-title">' + name + '</div>' +
-      '</div>' +
-      '<button class="video-btn" data-video="" onclick="event.stopPropagation()">&#9654; ' + (currentLang==='en'?'Video':currentLang==='es'?'Video':currentLang==='ja'?'動画':currentLang==='ar'?'فيديو':'视频') + '</button>' +
-    '</article>';
-  }
+  function $(s, c) { return (c || document).querySelector(s); }
+  function $$(s, c) { return Array.prototype.slice.call((c || document).querySelectorAll(s)); }
 
-  // ===== 渲染网格 + 分页 =====
-  function renderGrid(containerId, paginationId, pageKey) {
-    var container = document.getElementById(containerId);
-    var pagination = document.getElementById(paginationId);
-    if (!container) return;
+  /* ---------- 分页：只显示/隐藏已有的卡片，不新建 ---------- */
+  function renderPager(gridName) {
+    var grid = $('[data-grid="' + gridName + '"]');
+    var pager = $('[data-pager="' + gridName + '"]');
+    if (!grid || !pager) return;
 
-    var page = currentPage[pageKey];
-    var start = (page - 1) * PER_PAGE;
-    var end = start + PER_PAGE;
-    var pageImages = images.slice(start, end);
+    var cards = $$('.product-card', grid);
+    var searching = grid.getAttribute('data-searching') === '1';
+    var total = cards.length;
+    var pages = Math.max(1, Math.ceil(total / PER_PAGE));
 
-    container.innerHTML = '';
-    pageImages.forEach(function(src, i) {
-      container.innerHTML += cardHTML(src, start + i);
+    if (page[gridName] > pages) page[gridName] = 1;
+    var cur = page[gridName];
+
+    cards.forEach(function (card, i) {
+      var show = searching || (i >= (cur - 1) * PER_PAGE && i < cur * PER_PAGE);
+      card.style.display = show ? '' : 'none';
     });
 
-    // 绑定灯箱
-    container.querySelectorAll('.product-card').forEach(function(card) {
-      card.addEventListener('click', function() {
-        var idx = parseInt(this.getAttribute('data-index'));
-        openLightbox(idx);
-      });
-    });
-
-    // 视频按钮
-    container.querySelectorAll('.video-btn').forEach(function(btn) {
-      btn.addEventListener('click', function() {
-        var videoUrl = this.getAttribute('data-video');
-        if (videoUrl) {
-          window.open(videoUrl, '_blank');
-        } else {
-          alert(currentLang === 'zh' ? '视频链接待添加' : 'Video link to be added');
-        }
-      });
-    });
-
-    // 分页
-    if (pagination) {
-      var totalPages = Math.ceil(images.length / PER_PAGE);
-      var html = '';
-      html += '<button class="page-btn" data-dir="prev"' + (page <= 1 ? ' disabled' : '') + '>&#8249;</button>';
-      for (var p = 1; p <= totalPages; p++) {
-        html += '<button class="page-btn' + (p === page ? ' active' : '') + '" data-page="' + p + '">' + p + '</button>';
+    if (searching) {
+      pager.innerHTML = '';
+    } else {
+      var html = '<button class="page-btn" data-dir="-1"' + (cur <= 1 ? ' disabled' : '') + '>‹</button>';
+      for (var p = 1; p <= pages; p++) {
+        html += '<button class="page-btn' + (p === cur ? ' active' : '') + '" data-p="' + p + '">' + p + '</button>';
       }
-      html += '<button class="page-btn" data-dir="next"' + (page >= totalPages ? ' disabled' : '') + '>&#8250;</button>';
-      pagination.innerHTML = html;
+      html += '<button class="page-btn" data-dir="1"' + (cur >= pages ? ' disabled' : '') + '>›</button>';
+      pager.innerHTML = html;
 
-      pagination.querySelectorAll('[data-page]').forEach(function(btn) {
-        btn.addEventListener('click', function() {
-          currentPage[pageKey] = parseInt(this.getAttribute('data-page'));
-          renderGrid(containerId, paginationId, pageKey);
-          document.getElementById(containerId).scrollIntoView({ behavior: 'smooth', block: 'start' });
-        });
-      });
-
-      pagination.querySelectorAll('[data-dir]').forEach(function(btn) {
-        btn.addEventListener('click', function() {
-          var dir = this.getAttribute('data-dir');
-          if (dir === 'prev' && currentPage[pageKey] > 1) currentPage[pageKey]--;
-          if (dir === 'next' && currentPage[pageKey] < totalPages) currentPage[pageKey]++;
-          renderGrid(containerId, paginationId, pageKey);
-          document.getElementById(containerId).scrollIntoView({ behavior: 'smooth', block: 'start' });
+      $$('.page-btn', pager).forEach(function (btn) {
+        btn.addEventListener('click', function () {
+          if (btn.disabled) return;
+          var d = btn.getAttribute('data-dir');
+          var n = btn.getAttribute('data-p');
+          if (d) page[gridName] = cur + parseInt(d, 10);
+          else page[gridName] = parseInt(n, 10);
+          renderPager(gridName);
+          var v = grid.closest('.view-page') || grid;
+          v.scrollIntoView({ behavior: 'smooth', block: 'start' });
         });
       });
     }
+
+    bindCards(grid);
   }
 
-  // ===== 灯箱 =====
-  function openLightbox(index) {
-    lightboxIndex = index;
-    lightboxList = images;
-    var lb = document.getElementById('lightbox');
-    var img = document.getElementById('lightbox-img');
-    img.src = images[index];
-    lb.classList.add('show');
-  }
-
-  function closeLightbox() {
-    document.getElementById('lightbox').classList.remove('show');
-  }
-
-  function lightboxNav(dir) {
-    lightboxIndex += dir;
-    if (lightboxIndex < 0) lightboxIndex = images.length - 1;
-    if (lightboxIndex >= images.length) lightboxIndex = 0;
-    document.getElementById('lightbox-img').src = images[lightboxIndex];
-  }
-
-  // ===== 语言切换 =====
-  function applyLanguage(lang) {
-    currentLang = lang;
-    document.documentElement.lang = lang === 'zh' ? 'zh-CN' : (lang === 'en' ? 'en' : lang);
-    document.querySelectorAll('[data-' + lang + ']').forEach(function(el) {
-      el.textContent = el.getAttribute('data-' + lang + '');
+  /* ---------- 卡片交互：灯箱 + 视频按钮 ---------- */
+  function bindCards(grid) {
+    $$('.product-card', grid).forEach(function (card) {
+      var img = $('.thumb', card);
+      if (img && !img.getAttribute('data-lb-bound')) {
+        img.setAttribute('data-lb-bound', '1');
+        img.addEventListener('click', function () { openLightbox(grid, card); });
+      }
+      var vb = $('.video-btn', card);
+      if (vb && !vb.getAttribute('data-vb-bound')) {
+        vb.setAttribute('data-vb-bound', '1');
+        vb.addEventListener('click', function (e) {
+          e.stopPropagation();
+          var url = vb.getAttribute('data-video');
+          if (url && url.indexOf('http') === 0) window.open(url, '_blank');
+          else alert(lang === 'zh' ? '视频链接待添加' : 'Video link to be added');
+        });
+      }
     });
-    // 重新渲染当前视图
-    renderGrid('home-grid', 'home-pagination', 'home');
-    renderGrid('product-grid', 'products-pagination', 'products');
   }
 
-  // ===== 菜单导航 =====
-  function switchView(view) {
-    document.querySelectorAll('.view-page').forEach(function(v) { v.classList.remove('active'); });
-    document.querySelectorAll('.nav-link').forEach(function(l) { l.classList.remove('active'); });
-    if (view === 'home') {
-      document.getElementById('view-home').classList.add('active');
-      document.querySelector('[data-nav="home"]').classList.add('active');
-      renderGrid('home-grid', 'home-pagination', 'home');
-    } else if (view === 'products') {
-      document.getElementById('view-products').classList.add('active');
-      document.querySelector('[data-nav="products"]').classList.add('active');
-      renderGrid('product-grid', 'products-pagination', 'products');
-    } else if (view === 'factory') {
-      document.getElementById('view-factory').classList.add('active');
-      document.querySelector('[data-nav="factory"]').classList.add('active');
-    }
+  /* ---------- 灯箱：在当前页范围内左右切换 ---------- */
+  function openLightbox(grid, card) {
+    lbList = $$('.product-card', grid).filter(function (c) { return c.style.display !== 'none'; });
+    lbIndex = lbList.indexOf(card);
+    if (lbIndex < 0) lbIndex = 0;
+    showLightbox();
+    $('#lightbox').classList.add('show');
+  }
+  function showLightbox() {
+    var card = lbList[lbIndex];
+    if (!card) return;
+    var img = $('.thumb', card);
+    $('#lb-img').src = img.src;
+    var t = $('.product-title', card);
+    $('#lb-cap').textContent = t ? t.textContent : '';
+  }
+  function closeLightbox() { $('#lightbox').classList.remove('show'); }
+  function navLightbox(d) {
+    if (!lbList.length) return;
+    lbIndex = (lbIndex + d + lbList.length) % lbList.length;
+    showLightbox();
   }
 
-  // ===== 搜索 =====
+  /* ---------- 菜单切换 ---------- */
+  function switchView(name) {
+    $$('.view-page').forEach(function (v) { v.classList.remove('active'); });
+    $$('.nav-link').forEach(function (l) { l.classList.remove('active'); });
+    var view = $('#view-' + name);
+    if (view) view.classList.add('active');
+    $$('[data-go="' + name + '"]').forEach(function (l) { l.classList.add('active'); });
+    if (name === 'home') renderPager('home');
+    if (name === 'products') renderPager('products');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  /* ---------- 语言 ---------- */
+  function applyLang(l) {
+    lang = l;
+    var htmlLang = { zh: 'zh-CN', en: 'en', es: 'es', ja: 'ja', ar: 'ar' };
+    document.documentElement.lang = htmlLang[l] || 'zh';
+    document.documentElement.dir = (l === 'ar') ? 'rtl' : 'ltr';
+    $$('[data-' + l + ']').forEach(function (el) {
+      el.textContent = el.getAttribute('data-' + l);
+    });
+    var ph = { zh: '搜索产品...', en: 'Search products...', es: 'Buscar productos...', ja: '製品を検索...', ar: 'ابحث عن المنتجات...' };
+    $('#header-search').placeholder = ph[l] || ph.zh;
+    $$('.video-btn').forEach(function (b) {
+      b.textContent = (l === 'zh' ? '▶ 视频' : l === 'en' ? '▶ Video' : l === 'es' ? '▶ Video' : l === 'ja' ? '▶ 動画' : '▶ فيديو');
+    });
+  }
+
+  /* ---------- 搜索：在“产品”页过滤已存在的卡片 ---------- */
   function doSearch() {
-    var q = document.getElementById('header-search').value.trim().toLowerCase();
+    var q = $('#header-search').value.trim().toLowerCase();
+    var grid = $('[data-grid="products"]');
+    var cards = $$('.product-card', grid);
     if (!q) {
+      grid.setAttribute('data-searching', '0');
+      $('#no-result').style.display = 'none';
       switchView('home');
       return;
     }
     switchView('products');
-    var container = document.getElementById('product-grid');
-    var filtered = images.filter(function(src) {
-      return src.toLowerCase().indexOf(q) !== -1;
+    var hit = 0;
+    cards.forEach(function (c) {
+      var txt = (c.textContent + ' ' + ($('.thumb', c) ? $('.thumb', c).src : '')).toLowerCase();
+      var ok = txt.indexOf(q) !== -1;
+      c.style.display = ok ? '' : 'none';
+      if (ok) hit++;
     });
-    if (filtered.length === 0) {
-      container.innerHTML = '<p style="grid-column:1/-1;text-align:center;color:var(--gray);padding:40px">No results</p>';
-      document.getElementById('products-pagination').innerHTML = '';
-      return;
-    }
-    container.innerHTML = '';
-    filtered.forEach(function(src, i) {
-      container.innerHTML += cardHTML(src, i);
-    });
-    document.getElementById('products-pagination').innerHTML = '';
+    grid.setAttribute('data-searching', '1');
+    $('[data-pager="products"]').innerHTML = '';
+    $('#no-result').style.display = hit ? 'none' : 'block';
   }
 
-  // ===== 初始化 =====
+  /* ---------- 初始化 ---------- */
   function init() {
-    // 初始渲染
-    renderGrid('home-grid', 'home-pagination', 'home');
+    renderPager('home');
+    renderPager('products');
 
-    // 菜单点击
-    document.querySelectorAll('[data-nav]').forEach(function(link) {
-      link.addEventListener('click', function(e) {
-        e.preventDefault();
-        switchView(this.getAttribute('data-nav'));
+    $$('[data-go]').forEach(function (el) {
+      el.addEventListener('click', function () {
+        if (el.id === 'contact-btn') return;
+        switchView(el.getAttribute('data-go'));
       });
     });
 
-    // 联系我们
-    document.querySelector('.contact-trigger').addEventListener('click', function(e) {
-      e.preventDefault();
-      document.getElementById('contact-panel').classList.toggle('show');
+    var cp = $('#contact-panel');
+    $('#contact-btn').addEventListener('click', function (e) {
+      e.stopPropagation();
+      cp.classList.toggle('show');
+    });
+    document.addEventListener('click', function (e) {
+      if (!e.target.closest('#contact-btn') && !e.target.closest('#contact-panel')) cp.classList.remove('show');
     });
 
-    // 点击空白关联系面板
-    document.addEventListener('click', function(e) {
-      var panel = document.getElementById('contact-panel');
-      if (!e.target.closest('.contact-trigger') && !e.target.closest('.contact-panel')) {
-        panel.classList.remove('show');
-      }
+    $('#lang-switch').addEventListener('change', function () {
+      applyLang(this.value);
+      renderPager('home');
+      renderPager('products');
     });
 
-    // 语言切换
-    document.getElementById('lang-switch').addEventListener('change', function() {
-      applyLanguage(this.value);
+    var timer = null;
+    $('#header-search').addEventListener('input', function () {
+      clearTimeout(timer);
+      timer = setTimeout(doSearch, 200);
     });
 
-    // 搜索
-    document.getElementById('header-search').addEventListener('input', doSearch);
-
-    // 灯箱事件
-    document.getElementById('lightbox-close').addEventListener('click', closeLightbox);
-    document.getElementById('lightbox-prev').addEventListener('click', function() { lightboxNav(-1); });
-    document.getElementById('lightbox-next').addEventListener('click', function() { lightboxNav(1); });
-    document.getElementById('lightbox').addEventListener('click', function(e) {
-      if (e.target === this) closeLightbox();
-    });
-    document.addEventListener('keydown', function(e) {
-      if (!document.getElementById('lightbox').classList.contains('show')) return;
+    $('#lb-close').addEventListener('click', closeLightbox);
+    $('#lb-prev').addEventListener('click', function () { navLightbox(-1); });
+    $('#lb-next').addEventListener('click', function () { navLightbox(1); });
+    $('#lightbox').addEventListener('click', function (e) { if (e.target === this || e.target.id === 'lb-cap') closeLightbox(); });
+    document.addEventListener('keydown', function (e) {
+      if (!$('#lightbox').classList.contains('show')) return;
       if (e.key === 'Escape') closeLightbox();
-      if (e.key === 'ArrowLeft') lightboxNav(-1);
-      if (e.key === 'ArrowRight') lightboxNav(1);
+      if (e.key === 'ArrowLeft') navLightbox(-1);
+      if (e.key === 'ArrowRight') navLightbox(1);
     });
   }
 
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', init);
-  } else {
-    init();
-  }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
+  else init();
 })();
