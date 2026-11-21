@@ -5,153 +5,170 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>NBAKCAR - 工厂产品展厅</title>
 <link rel="icon" href="favicon.ico" type="image/x-icon">
-<meta name="description" content="NBAKCAR 工厂产品展厅，精选产品，品质保障。">
+<meta name="description" content="NBAKCAR 工厂产品展厅，产品展示与询价。">
 <link rel="stylesheet" href="css/style.css">
-
 <style>
-:root{
-  --main:#c8102e;
-  --dark:#1a1a1a;
-  --gray:#888888;
-  --bg:#f5f5f5;
-}
+:root{--main:#c8102e;--dark:#1a1a1a;--gray:#888888;--bg:#f5f5f5}
 *{box-sizing:border-box;margin:0;padding:0}
 body{font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",sans-serif;color:var(--dark);background:#fff;line-height:1.6}
 a{color:inherit;text-decoration:none}
-img{max-width:100%}
 
 /* 顶部 */
 .header{display:flex;align-items:center;gap:16px;padding:14px 28px;border-bottom:1px solid #eee;background:#fff;position:sticky;top:0;z-index:20;flex-wrap:wrap}
-.logo{font-size:20px;font-weight:800;letter-spacing:1px;color:var(--main);white-space:nowrap}
+.logo{font-size:20px;font-weight:800;letter-spacing:1px;color:var(--main);white-space:nowrap;cursor:pointer}
 .logo span{color:var(--dark)}
-.header .search-wrap{flex:1;min-width:160px;display:flex;justify-content:center}
-#header-search{width:100%;max-width:320px;padding:8px 14px;border:1px solid #ddd;border-radius:8px;font-size:14px}
-.header .header-right{display:flex;align-items:center;gap:10px}
+.search-wrap{flex:1;min-width:150px;display:flex;justify-content:flex-end}
+#header-search{width:100%;max-width:240px;padding:8px 14px;border:1px solid #ddd;border-radius:8px;font-size:14px;outline:none}
+#header-search:focus{border-color:var(--main)}
+.lang-switch{padding:6px 8px;border:1px solid #ddd;border-radius:6px;font-size:13px;font-weight:600;background:#fff;cursor:pointer;outline:none}
 
 /* 菜单栏 */
-.nav-menu{display:flex;gap:4px;order:3;width:100%;border-top:1px solid #f0f0f0;padding-top:8px;margin-top:2px;flex-wrap:wrap;align-items:center}
-.nav-link{padding:6px 16px;font-size:14px;font-weight:600;color:var(--gray);border-radius:6px;cursor:pointer;transition:.2s}
+.nav-menu{display:flex;gap:6px;order:3;width:100%;border-top:1px solid #f0f0f0;padding-top:8px;flex-wrap:wrap;align-items:center}
+.nav-link{padding:6px 16px;font-size:14px;font-weight:600;color:var(--gray);border-radius:6px;cursor:pointer;transition:.2s;white-space:nowrap}
 .nav-link:hover{color:var(--main);background:var(--bg)}
 .nav-link.active{color:#fff;background:var(--main)}
 
 /* 联系我们下拉 */
-.contact-dropdown{position:relative;display:inline-block}
-.contact-panel{display:none;position:absolute;top:100%;right:0;margin-top:6px;background:#fff;border:1px solid #ddd;border-radius:10px;padding:16px;min-width:220px;box-shadow:0 8px 24px rgba(0,0,0,.12);z-index:30}
+.contact-dropdown{position:relative;margin-left:auto}
+.contact-panel{display:none;position:absolute;top:100%;right:0;margin-top:8px;background:#fff;border:1px solid #ddd;border-radius:10px;padding:14px 16px;min-width:230px;box-shadow:0 8px 24px rgba(0,0,0,.12);z-index:30}
 .contact-panel.show{display:block}
-.contact-panel p{font-size:13px;color:var(--dark);margin-bottom:8px;display:flex;align-items:center;gap:6px}
-.contact-panel a{color:var(--main);text-decoration:none}
+.contact-panel p{font-size:13px;padding:6px 0;border-bottom:1px dashed #eee}
+.contact-panel p:last-child{border-bottom:none}
 
-/* 语言切换 */
-.lang-switch{padding:6px 8px;border:1px solid #ddd;border-radius:6px;font-size:13px;font-weight:600;background:#fff;cursor:pointer}
-
-/* 主内容 */
-main{padding:24px 28px}
-.section-title{font-size:18px;font-weight:700;margin-bottom:16px}
-.product-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:16px}
-.product-card{background:#fff;border:1px solid #eee;border-radius:10px;overflow:hidden;transition:.2s;cursor:pointer}
-.product-card:hover{box-shadow:0 4px 16px rgba(0,0,0,.1)}
-.product-card img{width:100%;aspect-ratio:3/4;object-fit:contain;padding:12px;background:var(--bg);display:block}
-.product-info{padding:10px 12px}
-.product-title{font-size:13px;font-weight:600;color:var(--dark)}
-.product-cat{font-size:11px;color:var(--gray);margin-top:2px}
-
-/* 视频按钮 */
-.video-btn{display:block;width:calc(100% - 24px);margin:0 auto 12px;padding:8px;text-align:center;background:var(--dark);color:#fff;border:none;border-radius:6px;font-size:12px;cursor:pointer;transition:.2s}
-.video-btn:hover{background:var(--main)}
-
-/* 分页 */
-.pagination{display:flex;justify-content:center;align-items:center;gap:8px;margin-top:24px;flex-wrap:wrap}
-.page-btn{padding:6px 12px;border:1px solid #ddd;border-radius:6px;background:#fff;cursor:pointer;font-size:13px;transition:.2s}
-.page-btn:hover{border-color:var(--main);color:var(--main)}
-.page-btn.active{background:var(--main);color:#fff;border-color:var(--main)}
-.page-btn:disabled{opacity:.3;cursor:not-allowed}
-
-/* 灯箱 */
-.lightbox{display:none;position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:100;justify-content:center;align-items:center;flex-direction:column}
-.lightbox.show{display:flex}
-.lightbox img{max-width:90vw;max-height:80vh;object-fit:contain;border-radius:4px}
-.lightbox-close{position:absolute;top:16px;right:20px;font-size:28px;color:#fff;cursor:pointer;background:none;border:none}
-.lightbox-prev,.lightbox-next{position:absolute;top:50%;transform:translateY(-50%);font-size:32px;color:#fff;cursor:pointer;background:none;border:none;padding:10px}
-.lightbox-prev{left:10px}
-.lightbox-next{right:10px}
-
-/* 视图切换 */
+/* 内容区 */
+main{padding:22px 28px 10px}
 .view-page{display:none}
 .view-page.active{display:block}
+.section-title{font-size:18px;font-weight:700;margin-bottom:14px}
+
+/* 产品网格 —— 图片写死在HTML，不靠JS生成 */
+.product-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:16px}
+.product-card{background:#fff;border:1px solid #eee;border-radius:10px;overflow:hidden;transition:.2s;display:flex;flex-direction:column}
+.product-card:hover{box-shadow:0 4px 16px rgba(0,0,0,.1)}
+.product-card img.thumb{width:100%;aspect-ratio:3/4;object-fit:contain;padding:12px;background:var(--bg);display:block;cursor:zoom-in}
+.product-info{padding:9px 12px 4px}
+.product-title{font-size:13px;font-weight:600}
+.product-cat{font-size:11px;color:var(--gray);margin-top:2px}
+.video-slot{padding:6px 12px 12px}
+.video-btn{width:100%;padding:7px 0;border:1px solid #ddd;border-radius:6px;background:#fff;font-size:12px;font-weight:600;color:var(--gray);cursor:pointer;transition:.2s}
+.video-btn:hover{border-color:var(--main);color:var(--main)}
+.no-result{grid-column:1/-1;text-align:center;color:var(--gray);padding:40px 0;display:none}
+
+/* 分页 */
+.pagination{display:flex;justify-content:center;align-items:center;gap:6px;margin:22px 0 8px;flex-wrap:wrap}
+.page-btn{min-width:34px;padding:6px 11px;border:1px solid #ddd;border-radius:6px;background:#fff;cursor:pointer;font-size:13px;color:var(--dark)}
+.page-btn:hover:not(:disabled){border-color:var(--main);color:var(--main)}
+.page-btn.active{background:var(--main);color:#fff;border-color:var(--main)}
+.page-btn:disabled{opacity:.35;cursor:not-allowed}
+
+/* 灯箱 */
+.lightbox{display:none;position:fixed;inset:0;background:rgba(0,0,0,.86);z-index:100;justify-content:center;align-items:center;flex-direction:column}
+.lightbox.show{display:flex}
+.lightbox img{max-width:90vw;max-height:78vh;object-fit:contain}
+.lb-close{position:absolute;top:14px;right:18px;font-size:30px;color:#fff;background:none;border:none;cursor:pointer;line-height:1}
+.lb-nav{position:absolute;top:50%;transform:translateY(-50%);font-size:34px;color:#fff;background:none;border:none;cursor:pointer;padding:10px 14px}
+.lb-prev{left:8px}.lb-next{right:8px}
+.lb-cap{color:#ddd;font-size:13px;margin-top:12px}
 
 /* 页脚 */
-.footer{margin-top:40px;padding:28px 32px;background:var(--dark);color:#bbb;font-size:13px;text-align:center}
+.footer{margin-top:26px;padding:26px 28px;background:var(--dark);color:#bbb;font-size:13px;text-align:center}
 .footer strong{color:#fff}
 </style>
 </head>
 <body>
 
 <header class="header">
-  <a class="logo" href="#" data-nav="home">NBA<span>KCAR</span></a>
-
+  <div class="logo" data-go="home">NBA<span>KCAR</span></div>
   <div class="search-wrap">
     <input type="text" id="header-search" placeholder="搜索产品...">
   </div>
-
-  <div class="header-right">
-    <select id="lang-switch" class="lang-switch">
-      <option value="zh">中文</option>
-      <option value="en">English</option>
-      <option value="es">Español</option>
-      <option value="ja">日本語</option>
-      <option value="ar">العربية</option>
-    </select>
-  </div>
+  <select id="lang-switch" class="lang-switch">
+    <option value="zh">中文</option>
+    <option value="en">English</option>
+    <option value="es">Español</option>
+    <option value="ja">日本語</option>
+    <option value="ar">العربية</option>
+  </select>
 
   <nav class="nav-menu">
-    <span class="nav-link active" data-nav="home" data-zh="首页" data-en="Home" data-es="Inicio" data-ja="ホーム" data-ar="الرئيسية">首页</span>
-    <span class="nav-link" data-nav="products" data-zh="产品" data-en="Products" data-es="Productos" data-ja="製品" data-ar="المنتجات">产品</span>
-    <span class="nav-link" data-nav="factory" data-zh="工厂展示" data-en="Factory" data-es="Fábrica" data-ja="工場" data-ar="المصنع">工厂展示</span>
-    <span class="nav-link contact-trigger" data-zh="联系我们" data-en="Contact" data-es="Contacto" data-ja="お問い合わせ" data-ar="اتصل بنا">联系我们</span>
+    <span class="nav-link active" data-go="home" data-zh="首页" data-en="Home" data-es="Inicio" data-ja="ホーム" data-ar="الرئيسية">首页</span>
+    <span class="nav-link" data-go="products" data-zh="产品" data-en="Products" data-es="Productos" data-ja="製品" data-ar="المنتجات">产品</span>
+    <span class="nav-link" data-go="factory" data-zh="工厂展示" data-en="Factory" data-es="Fábrica" data-ja="工場" data-ar="المصنع">工厂展示</span>
+    <span class="nav-link contact-dropdown" id="contact-btn" data-zh="联系我们" data-en="Contact" data-es="Contacto" data-ja="お問い合わせ" data-ar="اتصل بنا">联系我们</span>
+    <div class="contact-panel" id="contact-panel">
+      <p>📞 <span data-zh="电话" data-en="Phone" data-es="Teléfono" data-ja="電話" data-ar="هاتف">电话</span>：<span data-zh="待添加" data-en="To be added" data-es="Por añadir" data-ja="未追加" data-ar="سيُضاف">待添加</span></p>
+      <p>💬 WhatsApp：<span data-zh="待添加" data-en="To be added" data-es="Por añadir" data-ja="未追加" data-ar="سيُضاف">待添加</span></p>
+    </div>
   </nav>
-
-  <!-- 联系我们下拉面板 -->
-  <div class="contact-panel" id="contact-panel">
-    <p>📞 电话：<span data-zh="待添加" data-en="To be added" data-es="Por agregar" data-ja="未追加" data-ar="سيتم الإضافة">待添加</span></p>
-    <p>💬 WhatsApp：<span data-zh="待添加" data-en="To be added" data-es="Por agregar" data-ja="未追加" data-ar="سيتم الإضافة">待添加</span></p>
-  </div>
 </header>
 
 <main>
 
-  <!-- 首页视图 -->
-  <div class="view-page active" id="view-home">
-    <h2 class="section-title" data-zh="产品展示" data-en="Products" data-es="Productos" data-ja="製品" data-ar="المنتجات">产品展示</h2>
-    <div class="product-grid" id="home-grid"></div>
-    <div class="pagination" id="home-pagination"></div>
-  </div>
+  <!-- 首页 -->
+  <section class="view-page active" id="view-home">
+    <h2 class="section-title" data-zh="产品展示" data-en="Featured Products" data-es="Productos destacados" data-ja="製品紹介" data-ar="المنتجات المميزة">产品展示</h2>
+    <div class="product-grid" data-grid="home">
+      <article class="product-card"><img class="thumb" src="images/NBAKCAR00101.PNG" alt="NBAKCAR 00101"><div class="product-info"><div class="product-title">NBAKCAR 00101</div></div><div class="video-slot"><button class="video-btn" type="button" data-video="">▶ 视频</button></div></article>
+      <article class="product-card"><img class="thumb" src="images/NBAKCAR00102.PNG" alt="NBAKCAR 00102"><div class="product-info"><div class="product-title">NBAKCAR 00102</div></div><div class="video-slot"><button class="video-btn" type="button" data-video="">▶ 视频</button></div></article>
+      <article class="product-card"><img class="thumb" src="images/NBAKCAR00103.PNG" alt="NBAKCAR 00103"><div class="product-info"><div class="product-title">NBAKCAR 00103</div></div><div class="video-slot"><button class="video-btn" type="button" data-video="">▶ 视频</button></div></article>
+      <article class="product-card"><img class="thumb" src="images/NBAKCAR00104.PNG" alt="NBAKCAR 00104"><div class="product-info"><div class="product-title">NBAKCAR 00104</div></div><div class="video-slot"><button class="video-btn" type="button" data-video="">▶ 视频</button></div></article>
+      <article class="product-card"><img class="thumb" src="images/NBAKCAR00105.PNG" alt="NBAKCAR 00105"><div class="product-info"><div class="product-title">NBAKCAR 00105</div></div><div class="video-slot"><button class="video-btn" type="button" data-video="">▶ 视频</button></div></article>
+      <article class="product-card"><img class="thumb" src="images/NBAKCAR00106.PNG" alt="NBAKCAR 00106"><div class="product-info"><div class="product-title">NBAKCAR 00106</div></div><div class="video-slot"><button class="video-btn" type="button" data-video="">▶ 视频</button></div></article>
+      <article class="product-card"><img class="thumb" src="images/NBAKCAR00107.PNG" alt="NBAKCAR 00107"><div class="product-info"><div class="product-title">NBAKCAR 00107</div></div><div class="video-slot"><button class="video-btn" type="button" data-video="">▶ 视频</button></div></article>
+      <article class="product-card"><img class="thumb" src="images/NBAKCAR00108.PNG" alt="NBAKCAR 00108"><div class="product-info"><div class="product-title">NBAKCAR 00108</div></div><div class="video-slot"><button class="video-btn" type="button" data-video="">▶ 视频</button></div></article>
+      <article class="product-card"><img class="thumb" src="images/NBAKCAR00109.PNG" alt="NBAKCAR 00109"><div class="product-info"><div class="product-title">NBAKCAR 00109</div></div><div class="video-slot"><button class="video-btn" type="button" data-video="">▶ 视频</button></div></article>
+    </div>
+    <div class="pagination" data-pager="home"></div>
+  </section>
 
-  <!-- 产品视图 -->
-  <div class="view-page" id="view-products">
-    <h2 class="section-title" data-zh="全部产品" data-en="All Products" data-es="Todos los productos" data-ja="すべての製品" data-ar="جميع المنتجات">全部产品</h2>
-    <div class="product-grid" id="product-grid"></div>
-    <div class="pagination" id="products-pagination"></div>
-  </div>
+  <!-- 产品 -->
+  <section class="view-page" id="view-products">
+    <h2 class="section-title" data-zh="全部产品" data-en="All Products" data-es="Todos los productos" data-ja="全製品" data-ar="جميع المنتجات">全部产品</h2>
+    <div class="product-grid" data-grid="products">
+      <article class="product-card"><img class="thumb" src="images/NBAKCAR00101.PNG" alt="NBAKCAR 00101"><div class="product-info"><div class="product-title">NBAKCAR 00101</div></div><div class="video-slot"><button class="video-btn" type="button" data-video="">▶ 视频</button></div></article>
+      <article class="product-card"><img class="thumb" src="images/NBAKCAR00102.PNG" alt="NBAKCAR 00102"><div class="product-info"><div class="product-title">NBAKCAR 00102</div></div><div class="video-slot"><button class="video-btn" type="button" data-video="">▶ 视频</button></div></article>
+      <article class="product-card"><img class="thumb" src="images/NBAKCAR00103.PNG" alt="NBAKCAR 00103"><div class="product-info"><div class="product-title">NBAKCAR 00103</div></div><div class="video-slot"><button class="video-btn" type="button" data-video="">▶ 视频</button></div></article>
+      <article class="product-card"><img class="thumb" src="images/NBAKCAR00104.PNG" alt="NBAKCAR 00104"><div class="product-info"><div class="product-title">NBAKCAR 00104</div></div><div class="video-slot"><button class="video-btn" type="button" data-video="">▶ 视频</button></div></article>
+      <article class="product-card"><img class="thumb" src="images/NBAKCAR00105.PNG" alt="NBAKCAR 00105"><div class="product-info"><div class="product-title">NBAKCAR 00105</div></div><div class="video-slot"><button class="video-btn" type="button" data-video="">▶ 视频</button></div></article>
+      <article class="product-card"><img class="thumb" src="images/NBAKCAR00106.PNG" alt="NBAKCAR 00106"><div class="product-info"><div class="product-title">NBAKCAR 00106</div></div><div class="video-slot"><button class="video-btn" type="button" data-video="">▶ 视频</button></div></article>
+      <article class="product-card"><img class="thumb" src="images/NBAKCAR00107.PNG" alt="NBAKCAR 00107"><div class="product-info"><div class="product-title">NBAKCAR 00107</div></div><div class="video-slot"><button class="video-btn" type="button" data-video="">▶ 视频</button></div></article>
+      <article class="product-card"><img class="thumb" src="images/NBAKCAR00108.PNG" alt="NBAKCAR 00108"><div class="product-info"><div class="product-title">NBAKCAR 00108</div></div><div class="video-slot"><button class="video-btn" type="button" data-video="">▶ 视频</button></div></article>
+      <article class="product-card"><img class="thumb" src="images/NBAKCAR00109.PNG" alt="NBAKCAR 00109"><div class="product-info"><div class="product-title">NBAKCAR 00109</div></div><div class="video-slot"><button class="video-btn" type="button" data-video="">▶ 视频</button></div></article>
+      <article class="product-card"><img class="thumb" src="images/NBAKCAR00110.PNG" alt="NBAKCAR 00110"><div class="product-info"><div class="product-title">NBAKCAR 00110</div></div><div class="video-slot"><button class="video-btn" type="button" data-video="">▶ 视频</button></div></article>
+      <article class="product-card"><img class="thumb" src="images/NBAKCAR00111.PNG" alt="NBAKCAR 00111"><div class="product-info"><div class="product-title">NBAKCAR 00111</div></div><div class="video-slot"><button class="video-btn" type="button" data-video="">▶ 视频</button></div></article>
+      <article class="product-card"><img class="thumb" src="images/NBAKCAR00112.PNG" alt="NBAKCAR 00112"><div class="product-info"><div class="product-title">NBAKCAR 00112</div></div><div class="video-slot"><button class="video-btn" type="button" data-video="">▶ 视频</button></div></article>
+      <article class="product-card"><img class="thumb" src="images/NBAKCAR00113.PNG" alt="NBAKCAR 00113"><div class="product-info"><div class="product-title">NBAKCAR 00113</div></div><div class="video-slot"><button class="video-btn" type="button" data-video="">▶ 视频</button></div></article>
+      <article class="product-card"><img class="thumb" src="images/NBAKCAR00114.PNG" alt="NBAKCAR 00114"><div class="product-info"><div class="product-title">NBAKCAR 00114</div></div><div class="video-slot"><button class="video-btn" type="button" data-video="">▶ 视频</button></div></article>
+      <article class="product-card"><img class="thumb" src="images/NBAKCAR00115.PNG" alt="NBAKCAR 00115"><div class="product-info"><div class="product-title">NBAKCAR 00115</div></div><div class="video-slot"><button class="video-btn" type="button" data-video="">▶ 视频</button></div></article>
+      <article class="product-card"><img class="thumb" src="images/NBAKCAR00116.PNG" alt="NBAKCAR 00116"><div class="product-info"><div class="product-title">NBAKCAR 00116</div></div><div class="video-slot"><button class="video-btn" type="button" data-video="">▶ 视频</button></div></article>
+      <article class="product-card"><img class="thumb" src="images/NBAKCAR00117.PNG" alt="NBAKCAR 00117"><div class="product-info"><div class="product-title">NBAKCAR 00117</div></div><div class="video-slot"><button class="video-btn" type="button" data-video="">▶ 视频</button></div></article>
+      <article class="product-card"><img class="thumb" src="images/NBAKCAR00118.PNG" alt="NBAKCAR 00118"><div class="product-info"><div class="product-title">NBAKCAR 00118</div></div><div class="video-slot"><button class="video-btn" type="button" data-video="">▶ 视频</button></div></article>
+      <article class="product-card"><img class="thumb" src="images/NBAKCAR00119.PNG" alt="NBAKCAR 00119"><div class="product-info"><div class="product-title">NBAKCAR 00119</div></div><div class="video-slot"><button class="video-btn" type="button" data-video="">▶ 视频</button></div></article>
+      <article class="product-card"><img class="thumb" src="images/NBAKCAR00120.PNG" alt="NBAKCAR 00120"><div class="product-info"><div class="product-title">NBAKCAR 00120</div></div><div class="video-slot"><button class="video-btn" type="button" data-video="">▶ 视频</button></div></article>
+      <p class="no-result" id="no-result">没有找到匹配的产品</p>
+    </div>
+    <div class="pagination" data-pager="products"></div>
+  </section>
 
-  <!-- 工厂展示视图 -->
-  <div class="view-page" id="view-factory">
-    <h2 class="section-title" data-zh="工厂展示" data-en="Factory Tour" data-es="Recorrido de fábrica" data-ja="工場見学" data-ar="جولة في المصنع">工厂展示</h2>
-    <p style="color:var(--gray);font-size:14px;line-height:2" data-zh="工厂介绍内容待添加。" data-en="Factory info to be added." data-es="Información de fábrica por agregar." data-ja="工場情報は未追加です。" data-ar="معلومات المصنع سيتم إضافتها.">工厂介绍内容待添加。</p>
-  </div>
+  <!-- 工厂展示 -->
+  <section class="view-page" id="view-factory">
+    <h2 class="section-title" data-zh="工厂展示" data-en="Factory Tour" data-es="Recorrido de fábrica" data-ja="工場紹介" data-ar="جولة في المصنع">工厂展示</h2>
+    <p style="color:var(--gray);font-size:14px" data-zh="工厂介绍内容待添加。" data-en="Factory information to be added." data-es="Información de fábrica por añadir." data-ja="工場情報は未追加です。" data-ar="معلومات المصنع ستُضاف.">工厂介绍内容待添加。</p>
+  </section>
 
 </main>
 
 <footer class="footer">
-  <p><strong>NBAKCAR</strong> &nbsp;·&nbsp; <span data-zh="工厂产品展厅" data-en="Factory Showroom" data-es="Showroom de fábrica" data-ja="工場製品展示場" data-ar="معرض منتجات المصنع">工厂产品展厅</span> &nbsp;·&nbsp; <a href="mailto:info@nbakcar.com">info@nbakcar.com</a></p>
+  <p><strong>NBAKCAR</strong> · <span data-zh="工厂产品展厅" data-en="Factory Showroom" data-es="Showroom de fábrica" data-ja="工場製品展示場" data-ar="معرض منتجات المصنع">工厂产品展厅</span> · <a href="mailto:info@nbakcar.com">info@nbakcar.com</a></p>
   <p style="margin-top:6px;opacity:.7">© NBAKCAR</p>
 </footer>
 
-<!-- 灯箱 -->
 <div class="lightbox" id="lightbox">
-  <button class="lightbox-close" id="lightbox-close">&times;</button>
-  <button class="lightbox-prev" id="lightbox-prev">&#8249;</button>
-  <img id="lightbox-img" src="" alt="">
-  <button class="lightbox-next" id="lightbox-next">&#8250;</button>
+  <button class="lb-close" id="lb-close" type="button">✕</button>
+  <button class="lb-nav lb-prev" id="lb-prev" type="button">‹</button>
+  <img id="lb-img" src="" alt="">
+  <button class="lb-nav lb-next" id="lb-next" type="button">›</button>
+  <div class="lb-cap" id="lb-cap"></div>
 </div>
 
 <script src="js/script.js"></script>
