@@ -3,7 +3,7 @@
 (function () {
   'use strict';
 
-  var PER_PAGE = 9;
+  var PER_PAGE = 8;
   var page = { home: 1, products: 1 };
   var lang = 'zh';
   var lbList = [], lbIndex = 0;
@@ -33,20 +33,22 @@
     if (searching) {
       pager.innerHTML = '';
     } else {
-      var html = '<button class="page-btn" data-dir="-1"' + (cur <= 1 ? ' disabled' : '') + '>‹</button>';
-      for (var p = 1; p <= pages; p++) {
-        html += '<button class="page-btn' + (p === cur ? ' active' : '') + '" data-p="' + p + '">' + p + '</button>';
-      }
-      html += '<button class="page-btn" data-dir="1"' + (cur >= pages ? ' disabled' : '') + '>›</button>';
+      var TXT = {
+        zh: { next: '下一页', end: '没有更多了', info: '第 ' + cur + ' / ' + pages + ' 页' },
+        en: { next: 'Next Page', end: 'No more', info: 'Page ' + cur + ' / ' + pages },
+        es: { next: 'Siguiente', end: 'No hay más', info: 'Página ' + cur + ' / ' + pages },
+        ja: { next: '次のページ', end: 'これ以上ありません', info: cur + ' / ' + pages + ' ページ' },
+        ar: { next: 'الصفحة التالية', end: 'لا المزيد', info: 'صفحة ' + cur + ' / ' + pages }
+      }[lang] || { next: '下一页', end: '没有更多了', info: '' };
+
+      var html = '<button class="next-page-btn" data-dir="1"' + (cur >= pages ? ' disabled' : '') + '>'
+               + (cur >= pages ? TXT.end : TXT.next) + '</button>';
       pager.innerHTML = html;
 
-      $$('.page-btn', pager).forEach(function (btn) {
+      $$('.next-page-btn', pager).forEach(function (btn) {
         btn.addEventListener('click', function () {
           if (btn.disabled) return;
-          var d = btn.getAttribute('data-dir');
-          var n = btn.getAttribute('data-p');
-          if (d) page[gridName] = cur + parseInt(d, 10);
-          else page[gridName] = parseInt(n, 10);
+          page[gridName] = cur + 1;
           renderPager(gridName);
           var v = grid.closest('.view-page') || grid;
           v.scrollIntoView({ behavior: 'smooth', block: 'start' });
