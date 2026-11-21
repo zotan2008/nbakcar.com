@@ -1,329 +1,226 @@
-// ===== NBAKCAR 工厂产品展厅 =====
-// 配套 index.html 使用，依赖其中的 ID：
-//   #header-search / #lang-switch / #nav-menu / #contact-btn / #contact-panel
-//   #grid-home  #grid-products  #home-pager  #prod-pager
-//   #home-page-info  #prod-page-info
-//   #lightbox #lb-img #lb-cap #lb-close #lb-prev #lb-next
-
-(function () {
+(function(){
   'use strict';
 
-  var PAGE_SIZE = 9;          // 每页 9 张
-  var products = [];          // 由 HTML 里的卡片自动收集
-  var lang = 'zh';
+  // ===== 图片数据（严格按你之前能用的路径）=====
+  var images = [];
+  for (var i = 1; i <= 20; i++) {
+    var num = String(i + 100).slice(1); // 101~120
+    images.push('images/NBAKCAR00' + num + '.PNG');
+  }
 
-  var i18n = {
-    zh: { homeTitle:'NBAKCAR 工厂产品展厅', homeSub:'工厂直供 · 精选产品展示',
-          prodTitle:'全部产品', prodSub:'共 {n} 款产品，点击图片查看大图',
-          search:'搜索产品...', pageInfo:'第 {cur} / {total} 页，共 {n} 款',
-          prev:'上一页', next:'下一页', video:'▶ 视频', noVideo:'该产品的视频链接待添加',
-          noResult:'没有找到相关产品',
-          facTitle:'工厂展示' },
-    en: { homeTitle:'NBAKCAR Factory Showroom', homeSub:'Direct from factory · Featured products',
-          prodTitle:'All Products', prodSub:'{n} products in total, click image to enlarge',
-          search:'Search products...', pageInfo:'Page {cur} of {total}, {n} products',
-          prev:'Prev', next:'Next', video:'▶ Video', noVideo:'Video link to be added',
-          noResult:'No products found',
-          facTitle:'Factory' },
-    es: { homeTitle:'Salón de Productos NBAKCAR', homeSub:'Directo de fábrica · Productos destacados',
-          prodTitle:'Todos los productos', prodSub:'{n} productos, haz clic para ampliar',
-          search:'Buscar productos...', pageInfo:'Página {cur} de {total}, {n} productos',
-          prev:'Anterior', next:'Siguiente', video:'▶ Video', noVideo:'Enlace de video por añadir',
-          noResult:'No se encontraron productos',
-          facTitle:'Fábrica' },
-    ja: { homeTitle:'NBAKCAR 工場製品ショールーム', homeSub:'工場直送 · おすすめ製品',
-          prodTitle:'全製品', prodSub:'全 {n} 点、画像をクリックで拡大',
-          search:'製品を検索...', pageInfo:'{cur} / {total} ページ（全 {n} 点）',
-          prev:'前へ', next:'次へ', video:'▶ 動画', noVideo:'動画リンクは追加予定です',
-          noResult:'該当する製品がありません',
-          facTitle:'工場見学' },
-    ar: { homeTitle:'معرض منتجات NBAKCAR', homeSub:'مباشر من المصنع · منتجات مختارة',
-          prodTitle:'كل المنتجات', prodSub:'{n} منتج، اضغط على الصورة للتكبير',
-          search:'ابحث عن المنتجات...', pageInfo:'صفحة {cur} من {total}، {n} منتج',
-          prev:'السابق', next:'التالي', video:'▶ فيديو', noVideo:'رابط الفيديو سيُضاف',
-          noResult:'لم يتم العثور على منتجات',
-          facTitle:'المصنع' }
-  };
+  var PER_PAGE = 9;
+  var currentPage = { home: 1, products: 1 };
+  var currentLang = 'zh';
+  var lightboxIndex = 0;
+  var lightboxList = [];
 
-  function t(key, vars) {
-    var s = (i18n[lang] && i18n[lang][key]) || i18n.zh[key] || '';
-    if (vars) {
-      Object.keys(vars).forEach(function (k) {
-        s = s.replace('{' + k + '}', vars[k]);
+  // ===== 生成卡片 HTML =====
+  function cardHTML(src, index) {
+    var name = src.replace('images/', '').replace('.PNG', '');
+    return '<article class="product-card" data-index="' + index + '">' +
+      '<img src="' + src + '" alt="' + name + '" loading="lazy">' +
+      '<div class="product-info">' +
+        '<div class="product-title">' + name + '</div>' +
+      '</div>' +
+      '<button class="video-btn" data-video="" onclick="event.stopPropagation()">&#9654; ' + (currentLang==='en'?'Video':currentLang==='es'?'Video':currentLang==='ja'?'動画':currentLang==='ar'?'فيديو':'视频') + '</button>' +
+    '</article>';
+  }
+
+  // ===== 渲染网格 + 分页 =====
+  function renderGrid(containerId, paginationId, pageKey) {
+    var container = document.getElementById(containerId);
+    var pagination = document.getElementById(paginationId);
+    if (!container) return;
+
+    var page = currentPage[pageKey];
+    var start = (page - 1) * PER_PAGE;
+    var end = start + PER_PAGE;
+    var pageImages = images.slice(start, end);
+
+    container.innerHTML = '';
+    pageImages.forEach(function(src, i) {
+      container.innerHTML += cardHTML(src, start + i);
+    });
+
+    // 绑定灯箱
+    container.querySelectorAll('.product-card').forEach(function(card) {
+      card.addEventListener('click', function() {
+        var idx = parseInt(this.getAttribute('data-index'));
+        openLightbox(idx);
+      });
+    });
+
+    // 视频按钮
+    container.querySelectorAll('.video-btn').forEach(function(btn) {
+      btn.addEventListener('click', function() {
+        var videoUrl = this.getAttribute('data-video');
+        if (videoUrl) {
+          window.open(videoUrl, '_blank');
+        } else {
+          alert(currentLang === 'zh' ? '视频链接待添加' : 'Video link to be added');
+        }
+      });
+    });
+
+    // 分页
+    if (pagination) {
+      var totalPages = Math.ceil(images.length / PER_PAGE);
+      var html = '';
+      html += '<button class="page-btn" data-dir="prev"' + (page <= 1 ? ' disabled' : '') + '>&#8249;</button>';
+      for (var p = 1; p <= totalPages; p++) {
+        html += '<button class="page-btn' + (p === page ? ' active' : '') + '" data-page="' + p + '">' + p + '</button>';
+      }
+      html += '<button class="page-btn" data-dir="next"' + (page >= totalPages ? ' disabled' : '') + '>&#8250;</button>';
+      pagination.innerHTML = html;
+
+      pagination.querySelectorAll('[data-page]').forEach(function(btn) {
+        btn.addEventListener('click', function() {
+          currentPage[pageKey] = parseInt(this.getAttribute('data-page'));
+          renderGrid(containerId, paginationId, pageKey);
+          document.getElementById(containerId).scrollIntoView({ behavior: 'smooth', block: 'start' });
+        });
+      });
+
+      pagination.querySelectorAll('[data-dir]').forEach(function(btn) {
+        btn.addEventListener('click', function() {
+          var dir = this.getAttribute('data-dir');
+          if (dir === 'prev' && currentPage[pageKey] > 1) currentPage[pageKey]--;
+          if (dir === 'next' && currentPage[pageKey] < totalPages) currentPage[pageKey]++;
+          renderGrid(containerId, paginationId, pageKey);
+          document.getElementById(containerId).scrollIntoView({ behavior: 'smooth', block: 'start' });
+        });
       });
     }
-    return s;
   }
 
-  // ---------- 收集商品数据 ----------
-  function collectProducts() {
-    var cards = document.querySelectorAll('#grid-products .product-card');
-    products = Array.prototype.slice.call(cards).map(function (card, i) {
-      var img = card.querySelector('.thumb');
-      var titleEl = card.querySelector('.product-title');
-      return {
-        card: card,
-        src: img ? img.getAttribute('src') : '',
-        title: titleEl ? titleEl.textContent.trim() : ('NBAKCAR ' + (i + 1)),
-        index: i
-      };
-    });
+  // ===== 灯箱 =====
+  function openLightbox(index) {
+    lightboxIndex = index;
+    lightboxList = images;
+    var lb = document.getElementById('lightbox');
+    var img = document.getElementById('lightbox-img');
+    img.src = images[index];
+    lb.classList.add('show');
   }
 
-  // ---------- 渲染卡片（供首页 / 产品页复用） ----------
-  function buildCard(p) {
-    var art = document.createElement('article');
-    art.className = 'product-card';
-
-    var img = document.createElement('img');
-    img.className = 'thumb';
-    img.src = p.src;
-    img.alt = p.title;
-    img.loading = 'lazy';
-    img.addEventListener('click', function () { openLightbox(p.index); });
-
-    var info = document.createElement('div');
-    info.className = 'product-info';
-    var tt = document.createElement('div');
-    tt.className = 'product-title';
-    tt.textContent = p.title;
-    info.appendChild(tt);
-    var cat = document.createElement('div');
-    cat.className = 'product-cat';
-    cat.textContent = 'NBAKCAR';
-    info.appendChild(cat);
-
-    var slot = document.createElement('div');
-    slot.className = 'video-slot';
-    var vb = document.createElement('button');
-    vb.className = 'video-btn';
-    vb.type = 'button';
-    vb.textContent = t('video');
-    vb.addEventListener('click', function () {
-      var url = vb.getAttribute('data-video') || '';
-      if (url) { window.open(url, '_blank'); }
-      else { alert(t('noVideo')); }
-    });
-    slot.appendChild(vb);
-
-    art.appendChild(img);
-    art.appendChild(info);
-    art.appendChild(slot);
-    return art;
-  }
-
-  // ---------- 分页器 ----------
-  var state = {
-    home: { grid:null, pager:null, info:null, page:1, kw:'' },
-    prod: { grid:null, pager:null, info:null, page:1, kw:'' }
-  };
-
-  function filtered(kw) {
-    kw = (kw || '').trim().toLowerCase();
-    if (!kw) return products;
-    return products.filter(function (p) {
-      return p.title.toLowerCase().indexOf(kw) > -1;
-    });
-  }
-
-  function render(name) {
-    var st = state[name];
-    if (!st || !st.grid) return;
-
-    var list = filtered(st.kw);
-    var total = Math.max(1, Math.ceil(list.length / PAGE_SIZE));
-    if (st.page > total) st.page = total;
-
-    st.grid.innerHTML = '';
-
-    if (list.length === 0) {
-      var empty = document.createElement('div');
-      empty.className = 'no-results';
-      empty.textContent = t('noResult');
-      st.grid.appendChild(empty);
-    } else {
-      var start = (st.page - 1) * PAGE_SIZE;
-      var slice = list.slice(start, start + PAGE_SIZE);
-      slice.forEach(function (p) { st.grid.appendChild(buildCard(p)); });
-    }
-
-    // 页码条
-    st.pager.innerHTML = '';
-    if (list.length > 0) {
-      var prev = document.createElement('button');
-      prev.textContent = '‹';
-      prev.setAttribute('aria-label', t('prev'));
-      prev.disabled = st.page <= 1;
-      prev.addEventListener('click', function () { st.page--; render(name); scrollTop(st); });
-      st.pager.appendChild(prev);
-
-      for (var i = 1; i <= total; i++) {
-        (function (n) {
-          var b = document.createElement('button');
-          b.textContent = n;
-          if (n === st.page) b.className = 'active';
-          b.addEventListener('click', function () { st.page = n; render(name); scrollTop(st); });
-          st.pager.appendChild(b);
-        })(i);
-      }
-
-      var next = document.createElement('button');
-      next.textContent = '›';
-      next.setAttribute('aria-label', t('next'));
-      next.disabled = st.page >= total;
-      next.addEventListener('click', function () { st.page++; render(name); scrollTop(st); });
-      st.pager.appendChild(next);
-    }
-
-    st.info.textContent = t('pageInfo', { cur: st.page, total: total, n: list.length });
-  }
-
-  function scrollTop(st) {
-    var el = st.grid.closest('.view') || st.grid;
-    if (el.scrollIntoView) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
-  }
-
-  // ---------- 菜单切换 ----------
-  function switchView(name) {
-    document.querySelectorAll('.view').forEach(function (v) {
-      v.classList.toggle('active', v.id === 'view-' + name);
-    });
-    document.querySelectorAll('.nav-link[data-view]').forEach(function (l) {
-      l.classList.toggle('active', l.getAttribute('data-view') === name);
-    });
-    closeContact();
-  }
-
-  // ---------- 联系我们下拉 ----------
-  function closeContact() {
-    var p = document.getElementById('contact-panel');
-    if (p) p.classList.remove('open');
-  }
-
-  // ---------- 灯箱 ----------
-  var lb = document.getElementById('lightbox');
-  var lbImg = document.getElementById('lb-img');
-  var lbCap = document.getElementById('lb-cap');
-  var lbIndex = 0;
-
-  function openLightbox(i) {
-    lbIndex = i;
-    showLightbox();
-    lb.classList.add('open');
-    lb.setAttribute('aria-hidden', 'false');
-    document.body.style.overflow = 'hidden';
-  }
-  function showLightbox() {
-    var p = products[lbIndex];
-    if (!p) return;
-    lbImg.src = p.src;
-    lbImg.alt = p.title;
-    lbCap.textContent = p.title + '  (' + (lbIndex + 1) + ' / ' + products.length + ')';
-  }
   function closeLightbox() {
-    lb.classList.remove('open');
-    lb.setAttribute('aria-hidden', 'true');
-    document.body.style.overflow = '';
-  }
-  function step(d) {
-    lbIndex = (lbIndex + d + products.length) % products.length;
-    showLightbox();
+    document.getElementById('lightbox').classList.remove('show');
   }
 
-  document.getElementById('lb-close').addEventListener('click', closeLightbox);
-  document.getElementById('lb-prev').addEventListener('click', function () { step(-1); });
-  document.getElementById('lb-next').addEventListener('click', function () { step(1); });
-  lb.addEventListener('click', function (e) { if (e.target === lb) closeLightbox(); });
+  function lightboxNav(dir) {
+    lightboxIndex += dir;
+    if (lightboxIndex < 0) lightboxIndex = images.length - 1;
+    if (lightboxIndex >= images.length) lightboxIndex = 0;
+    document.getElementById('lightbox-img').src = images[lightboxIndex];
+  }
 
-  document.addEventListener('keydown', function (e) {
-    if (!lb.classList.contains('open')) return;
-    if (e.key === 'Escape') closeLightbox();
-    if (e.key === 'ArrowLeft') step(-1);
-    if (e.key === 'ArrowRight') step(1);
-  });
+  // ===== 语言切换 =====
+  function applyLanguage(lang) {
+    currentLang = lang;
+    document.documentElement.lang = lang === 'zh' ? 'zh-CN' : (lang === 'en' ? 'en' : lang);
+    document.querySelectorAll('[data-' + lang + ']').forEach(function(el) {
+      el.textContent = el.getAttribute('data-' + lang + '');
+    });
+    // 重新渲染当前视图
+    renderGrid('home-grid', 'home-pagination', 'home');
+    renderGrid('product-grid', 'products-pagination', 'products');
+  }
 
-  // ---------- 语言切换 ----------
-  function applyLang() {
-    var sel = document.getElementById('lang-switch');
-    lang = sel ? sel.value : 'zh';
+  // ===== 菜单导航 =====
+  function switchView(view) {
+    document.querySelectorAll('.view-page').forEach(function(v) { v.classList.remove('active'); });
+    document.querySelectorAll('.nav-link').forEach(function(l) { l.classList.remove('active'); });
+    if (view === 'home') {
+      document.getElementById('view-home').classList.add('active');
+      document.querySelector('[data-nav="home"]').classList.add('active');
+      renderGrid('home-grid', 'home-pagination', 'home');
+    } else if (view === 'products') {
+      document.getElementById('view-products').classList.add('active');
+      document.querySelector('[data-nav="products"]').classList.add('active');
+      renderGrid('product-grid', 'products-pagination', 'products');
+    } else if (view === 'factory') {
+      document.getElementById('view-factory').classList.add('active');
+      document.querySelector('[data-nav="factory"]').classList.add('active');
+    }
+  }
 
-    document.documentElement.setAttribute('lang', lang);
+  // ===== 搜索 =====
+  function doSearch() {
+    var q = document.getElementById('header-search').value.trim().toLowerCase();
+    if (!q) {
+      switchView('home');
+      return;
+    }
+    switchView('products');
+    var container = document.getElementById('product-grid');
+    var filtered = images.filter(function(src) {
+      return src.toLowerCase().indexOf(q) !== -1;
+    });
+    if (filtered.length === 0) {
+      container.innerHTML = '<p style="grid-column:1/-1;text-align:center;color:var(--gray);padding:40px">No results</p>';
+      document.getElementById('products-pagination').innerHTML = '';
+      return;
+    }
+    container.innerHTML = '';
+    filtered.forEach(function(src, i) {
+      container.innerHTML += cardHTML(src, i);
+    });
+    document.getElementById('products-pagination').innerHTML = '';
+  }
 
-    var homeTitle = document.getElementById('home-title');
-    var homeSub = document.getElementById('home-sub');
-    var prodTitle = document.getElementById('prod-title');
-    var prodSub = document.getElementById('prod-sub');
-    var facTitle = document.getElementById('fac-title');
-    var search = document.getElementById('header-search');
+  // ===== 初始化 =====
+  function init() {
+    // 初始渲染
+    renderGrid('home-grid', 'home-pagination', 'home');
 
-    if (homeTitle) homeTitle.textContent = t('homeTitle');
-    if (homeSub) homeSub.textContent = t('homeSub');
-    if (prodTitle) prodTitle.textContent = t('prodTitle');
-    if (prodSub) prodSub.textContent = t('prodSub', { n: products.length });
-    if (facTitle) facTitle.textContent = t('facTitle');
-    if (search) search.setAttribute('placeholder', t('search'));
+    // 菜单点击
+    document.querySelectorAll('[data-nav]').forEach(function(link) {
+      link.addEventListener('click', function(e) {
+        e.preventDefault();
+        switchView(this.getAttribute('data-nav'));
+      });
+    });
 
-    document.querySelectorAll('[data-zh]').forEach(function (el) {
-      var v = el.getAttribute('data-' + lang);
-      if (v !== null && !el.classList.contains('nav-link') === false) {
-        // 菜单项与下拉内文案都跟随语言
-        el.textContent = v;
+    // 联系我们
+    document.querySelector('.contact-trigger').addEventListener('click', function(e) {
+      e.preventDefault();
+      document.getElementById('contact-panel').classList.toggle('show');
+    });
+
+    // 点击空白关联系面板
+    document.addEventListener('click', function(e) {
+      var panel = document.getElementById('contact-panel');
+      if (!e.target.closest('.contact-trigger') && !e.target.closest('.contact-panel')) {
+        panel.classList.remove('show');
       }
     });
 
-    document.querySelectorAll('.video-btn').forEach(function (b) { b.textContent = t('video'); });
+    // 语言切换
+    document.getElementById('lang-switch').addEventListener('change', function() {
+      applyLanguage(this.value);
+    });
 
-    render('home');
-    render('prod');
-  }
+    // 搜索
+    document.getElementById('header-search').addEventListener('input', doSearch);
 
-  // ---------- 搜索 ----------
-  var searchInput = document.getElementById('header-search');
-  var searchTimer = null;
-  if (searchInput) {
-    searchInput.addEventListener('input', function () {
-      clearTimeout(searchTimer);
-      searchTimer = setTimeout(function () {
-        var kw = searchInput.value;
-        state.home.kw = kw; state.home.page = 1;
-        state.prod.kw = kw; state.prod.page = 1;
-        // 输入时若停在其他页，自动跳到产品页展示结果
-        if (kw.trim() !== '') switchView('products');
-        render('home');
-        render('prod');
-      }, 180);
+    // 灯箱事件
+    document.getElementById('lightbox-close').addEventListener('click', closeLightbox);
+    document.getElementById('lightbox-prev').addEventListener('click', function() { lightboxNav(-1); });
+    document.getElementById('lightbox-next').addEventListener('click', function() { lightboxNav(1); });
+    document.getElementById('lightbox').addEventListener('click', function(e) {
+      if (e.target === this) closeLightbox();
+    });
+    document.addEventListener('keydown', function(e) {
+      if (!document.getElementById('lightbox').classList.contains('show')) return;
+      if (e.key === 'Escape') closeLightbox();
+      if (e.key === 'ArrowLeft') lightboxNav(-1);
+      if (e.key === 'ArrowRight') lightboxNav(1);
     });
   }
 
-  // ---------- 初始化 ----------
-  document.addEventListener('DOMContentLoaded', function () {
-    collectProducts();
-
-    state.home.grid = document.getElementById('grid-home');
-    state.home.pager = document.getElementById('home-pager');
-    state.home.info = document.getElementById('home-page-info');
-    state.prod.grid = document.getElementById('grid-products');
-    state.prod.pager = document.getElementById('prod-pager');
-    state.prod.info = document.getElementById('prod-page-info');
-
-    document.querySelectorAll('.nav-link[data-view]').forEach(function (l) {
-      l.addEventListener('click', function () { switchView(l.getAttribute('data-view')); });
-    });
-
-    var logo = document.querySelector('.logo');
-    if (logo) logo.addEventListener('click', function (e) { e.preventDefault(); switchView('home'); });
-
-    var cbtn = document.getElementById('contact-btn');
-    if (cbtn) {
-      cbtn.addEventListener('click', function (e) {
-        e.stopPropagation();
-        document.getElementById('contact-panel').classList.toggle('open');
-      });
-    }
-    document.addEventListener('click', function (e) {
-      if (!e.target.closest || !e.target.closest('.contact-wrap')) closeContact();
-    });
-
-    applyLang();
-  });
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', init);
+  } else {
+    init();
+  }
 })();
