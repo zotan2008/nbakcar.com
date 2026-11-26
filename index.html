@@ -12,7 +12,7 @@
 body{font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",sans-serif;color:var(--dark);background:#fff;line-height:1.6}
 a{color:inherit;text-decoration:none}
 
-/* ===== 顶部：LOGO(大字,占两行高) | 菜单(底部对齐) | 搜索+语言 ===== */
+/* ===== 顶部 ===== */
 .header{display:flex;align-items:flex-end;gap:38px;padding:10px 24px;border-bottom:1px solid #eee;background:#fff;position:sticky;top:0;z-index:20;flex-wrap:nowrap}
 .logo{font-size:34px;line-height:1.05;font-weight:800;letter-spacing:1px;color:var(--main);white-space:nowrap;cursor:pointer;flex:0 0 auto;padding-bottom:2px}
 .logo span{color:var(--dark)}
@@ -22,14 +22,14 @@ a{color:inherit;text-decoration:none}
 .nav-link.active{color:#fff;background:var(--main)}
 .lang-badge{display:inline-block;min-width:22px;text-align:center;margin-left:8px;padding:2px 6px;border-radius:5px;background:var(--main);color:#fff;font-size:12px;font-weight:700;vertical-align:middle}
 
-/* 联系我们：菜单第 4 项 */
+/* 联系面板 */
 .contact-dropdown{position:relative}
 .contact-panel{display:none;position:absolute;top:100%;left:0;margin-top:8px;background:#fff;border:1px solid #ddd;border-radius:10px;padding:14px 16px;min-width:230px;box-shadow:0 8px 24px rgba(0,0,0,.12);z-index:30}
 .contact-panel.show{display:block}
 .contact-panel p{font-size:13px;padding:6px 0;border-bottom:1px dashed #eee;white-space:nowrap}
 .contact-panel p:last-child{border-bottom:none}
 
-/* 右侧：搜索框 + 语言 */
+/* 右侧 */
 .nav-right{display:flex;align-items:center;gap:8px;flex:0 0 auto;margin-left:auto}
 #header-search{width:170px;padding:7px 12px;border:1px solid #ddd;border-radius:8px;font-size:13px;outline:none}
 #header-search:focus{border-color:var(--main)}
@@ -48,12 +48,9 @@ main{padding:22px 28px 10px}
 .view-page.active{display:block}
 .section-title{font-size:18px;font-weight:700;margin-bottom:14px}
 
+/* 产品网格 */
 .product-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}
 @media (max-width:900px){.product-grid{grid-template-columns:repeat(2,1fr)}}
-.next-page-wrap{display:flex;justify-content:center;margin-top:24px}
-.next-page-btn{padding:10px 32px;border:1px solid var(--main);border-radius:8px;background:#fff;color:var(--main);font-size:14px;font-weight:600;cursor:pointer;transition:.2s}
-.next-page-btn:hover{background:var(--main);color:#fff}
-.next-page-btn:disabled{border-color:#ddd;color:#bbb;cursor:not-allowed;background:#fafafa}
 .product-card{background:#fff;border:1px solid #eee;border-radius:10px;overflow:hidden;transition:.2s;display:flex;flex-direction:column}
 .product-card:hover{box-shadow:0 4px 16px rgba(0,0,0,.1)}
 .product-card img.thumb{width:100%;aspect-ratio:3/4;object-fit:contain;padding:12px;background:var(--bg);display:block;cursor:zoom-in}
@@ -63,6 +60,14 @@ main{padding:22px 28px 10px}
 .video-btn{width:100%;padding:7px 0;border:1px solid #ddd;border-radius:6px;background:#fff;font-size:12px;font-weight:600;color:var(--gray);cursor:pointer;transition:.2s}
 .video-btn:hover{border-color:var(--main);color:var(--main)}
 .no-result{grid-column:1/-1;text-align:center;color:var(--gray);padding:40px 0;display:none}
+
+/* ===== 分页（新版 JS 需要） ===== */
+.pagination{display:flex;justify-content:center;align-items:center;flex-wrap:wrap;gap:6px;margin-top:24px}
+.page-btn{padding:7px 12px;border:1px solid #ddd;border-radius:6px;background:#fff;color:var(--dark);font-size:13px;font-weight:600;cursor:pointer;transition:.2s;min-width:36px;text-align:center}
+.page-btn:hover{border-color:var(--main);color:var(--main)}
+.page-btn.active{background:var(--main);color:#fff;border-color:var(--main)}
+.page-btn:disabled{color:#bbb;cursor:not-allowed;background:#fafafa}
+.page-info{font-size:12px;color:var(--gray);margin-left:10px}
 
 /* ===== 灯箱 ===== */
 .lightbox{display:none;position:fixed;inset:0;background:rgba(0,0,0,.86);z-index:100;justify-content:center;align-items:center;flex-direction:column}
@@ -88,7 +93,6 @@ main{padding:22px 28px 10px}
 <header class="header">
   <div class="logo" data-go="home">NBA<span>KCAR</span></div>
 
-  <!-- 菜单：Home / Products / Factory / Contact Us（第 4 项） -->
   <nav class="nav-menu">
     <span class="nav-link active" data-go="home" data-zh="首页" data-en="Home" data-es="Inicio" data-ja="ホーム" data-ar="الرئيسية">Home</span>
     <span class="nav-link" data-go="products" data-zh="产品" data-en="Products" data-es="Productos" data-ja="製品" data-ar="المنتجات">Products</span>
@@ -100,7 +104,6 @@ main{padding:22px 28px 10px}
     </div>
   </nav>
 
-  <!-- 右侧：搜索 + 语言 -->
   <div class="nav-right">
     <input type="text" id="header-search"
            placeholder="Search products..."
@@ -116,7 +119,7 @@ main{padding:22px 28px 10px}
       <option value="ja">日本語</option>
       <option value="ar">العربية</option>
     </select>
-    <span id="lang-badge" title="current language">EN</span>
+    <span id="lang-badge" class="lang-badge" title="current language">EN</span>
   </div>
 </header>
 
@@ -126,19 +129,17 @@ main{padding:22px 28px 10px}
   <section class="view-page active" id="view-home">
     <h2 class="section-title" data-zh="产品展示" data-en="Featured Products" data-es="Productos destacados" data-ja="製品紹介" data-ar="المنتجات المميزة">Featured Products</h2>
     <div class="product-grid" id="home-grid"></div>
-    <div class="next-page-wrap">
-      <button class="next-page-btn" id="next-home" type="button" data-zh="下一页" data-en="Next Page" data-es="Siguiente" data-ja="次のページ" data-ar="الصفحة التالية">Next Page</button>
-    </div>
+    <!-- 新版分页容器 -->
+    <div id="home-pagination" class="pagination"></div>
   </section>
 
-  <!-- 产品 -->
+  <!-- 产品页 -->
   <section class="view-page" id="view-products">
     <h2 class="section-title" data-zh="全部产品" data-en="All Products" data-es="Todos los productos" data-ja="全製品" data-ar="جميع المنتجات">All Products</h2>
     <div class="product-grid" id="product-grid"></div>
     <p class="no-result" id="no-result" data-zh="没有找到匹配的产品" data-en="No products found" data-es="No se encontraron productos" data-ja="該当する製品がありません" data-ar="لم يتم العثور على منتجات">No products found</p>
-    <div class="next-page-wrap">
-      <button class="next-page-btn" id="next-products" type="button" data-zh="下一页" data-en="Next Page" data-es="Siguiente" data-ja="次のページ" data-ar="الصفحة التالية">Next Page</button>
-    </div>
+    <!-- 新版分页容器 -->
+    <div id="product-pagination" class="pagination"></div>
   </section>
 
   <!-- 工厂展示 -->
@@ -177,6 +178,7 @@ main{padding:22px 28px 10px}
   </div>
 </footer>
 
+<!-- 灯箱 -->
 <div class="lightbox" id="lightbox">
   <button class="lb-close" id="lb-close" type="button">✕</button>
   <button class="lb-nav lb-prev" id="lb-prev" type="button">‹</button>
@@ -185,6 +187,6 @@ main{padding:22px 28px 10px}
   <div class="lb-cap" id="lb-cap"></div>
 </div>
 
-<script src="js/script.v3.js"></script>
+<script src="js/main.js"></script>
 </body>
 </html>
